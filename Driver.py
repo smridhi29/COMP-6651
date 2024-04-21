@@ -1,7 +1,9 @@
 import random
+import math
 from collections import defaultdict
 from AStarLSP import Astar
 from DFSLSP import DFS
+from generateGraph import GeometricGraph
 import matplotlib.pyplot as plt
 
 class Graph:
@@ -76,7 +78,84 @@ class Graph:
         plt.ylabel("Y-axis")
         plt.axis('off')  
         plt.show()
+    
+    def findOptimalR(self, n, minFraction, maxFraction):
+        low = 0
+        high = math.sqrt(2)
+        while high - low > 0.001:
+            mid = (low + high) / 2
+            graph = GeometricGraph(n)
+            graph.addEdges(mid)
+            lccSize = graph.largestConnectedComponent()
+            if lccSize < minFraction * n:
+                low = mid
+            elif lccSize > maxFraction * n:
+                high = mid
+            else:
+                break
+        return mid
+    
+    def getlccdegrees(self, edges, lcc):
 
+        mdegree = 0
+        total_degree = 0
+        node_count = 0
+
+        # Perform BFS starting from the LCC node
+        for node in lcc:
+            visited = set()
+            queue = [node]
+            while queue:
+                current_node = queue.pop(0)
+                visited.add(current_node)
+                mdegree = max(mdegree, len(self.adjList[current_node]))
+                total_degree += len(self.adjList[current_node])
+                node_count += 1
+                for neighbor in self.adjList[current_node]:
+                    if neighbor not in visited and neighbor not in queue:
+                        queue.append(neighbor)
+
+        adegree = total_degree / node_count if node_count != 0 else 0
+
+        return mdegree, adegree    
+
+def generate():
+    g= Graph()
+    
+    n300 = 300
+    optimalR300 = g.findOptimalR(n300, 0.9, 0.95)
+    print("Optimal r for n = 300:", optimalR300)
+    graph300 = GeometricGraph(n300)
+    graph300.addEdges(optimalR300)
+    graph300.saveGraphToFile("graph_n300.edges")
+    graph300.saveGraphToMtxFile("graph_n300.mtx")
+
+    # Graph with n = 400
+    n400 = 400
+    optimalR400 = g.findOptimalR(n400, 0.8, 0.9)
+    print("Optimal r for n = 400:", optimalR400)
+    graph400 = GeometricGraph(n400)
+    graph400.addEdges(optimalR400)
+    graph400.saveGraphToFile("graph_n400.edges")
+    graph400.saveGraphToMtxFile("graph_n400.mtx")
+    
+    # Graph with n = 500
+    n500 = 500
+    optimalR500 = g.findOptimalR(n500, 0.7, 0.8)
+    print("Optimal r for n = 500:", optimalR500)
+    graph500 = GeometricGraph(n500)
+    graph500.addEdges(optimalR500)
+    graph500.saveGraphToFile("graph_n500.edges")
+    graph500.saveGraphToMtxFile("graph_n500.mtx")
+
+def dfslsp():
+    g = Graph()
+    d = DFS()
+    a = Astar()
+    g.readGraphFromFile("graph_n300.mtx")
+    lcc = g.findLCC()
+    longestPathEstimate = d.searchLSP(lcc,g)
+    print("Estimated longest simple path length:", longestPathEstimate)
     
 def dfslsp():
     g = Graph()
@@ -98,18 +177,24 @@ def astar():
     longestPathEstimate = a.Get_Longest_Simple_Path(lcc,edges,g)
     print("Estimated longest simple path length:", longestPathEstimate)
     
+def our():
+    print("You chose option 2")    
+    
 def main():
     
     options = {
-    1: dfslsp,
-    2: dijkstra,
-    3: astar
+    1: generate,
+    2: dfslsp,
+    3: dijkstra,
+    4: astar,
+    5: our
 }
     print("Welcome to Longest Simple Path Search!!")
-    print("1. DFS Based LSP Search")
-    print("2. Dijkstra Based LSP Search")
-    print("3. A* Based LSP Search")
-    print("4. Our Hueristic LSP Search")
+    print("1. Generate Graphs with n=300, 400 and 500")
+    print("2. DFS Based LSP Search")
+    print("3. Dijkstra Based LSP Search")
+    print("4. A* Based LSP Search")
+    print("5. Our Hueristic LSP Search")
     num = int(input("Enter your choice: "))
     selected_option = options.get(num)
     if selected_option:
