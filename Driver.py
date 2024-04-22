@@ -3,56 +3,92 @@ import math
 from collections import defaultdict
 from AStarLSP import Astar
 from DFSLSP import DFS
+from DijkstraLSP import Dijkstra
 from generateGraph import GeometricGraph
 import matplotlib.pyplot as plt
 
+class Vertex:
+    def __init__(self, x, y,node):
+        self.x = x
+        self.y = y
+        self.node = node
+        self.distance = float('-inf')
+        self.parent = None
+        
 class Graph:
     def __init__(self):
         self.adjList = defaultdict(list)
-        self.vertices = set()
+        self.verticeSet = set()
+        self.vertices = []
+        self.verticeMap = {}
 
     def addEdge(self, u, v):
         self.adjList[u].append(v)
         self.adjList[v].append(u)
-        self.vertices.update([u, v])
+        
+    def addVertex(self, u, v, x1=0, y1=0, x2=0, y2=0):
+        ver1 = Vertex(x1, y1, u)
+        ver2 = Vertex(x2, y2, v)
+        if(u not in self.verticeSet):
+            self.vertices.append(ver1)
+            self.verticeMap[u] = ver1
+        
+        if(v not in self.verticeSet):
+            self.vertices.append(ver2)
+            self.verticeMap[v] = ver2
+        
+        self.verticeSet.update([u, v])
 
-    def DFS(self, v, visited, component):
+    def DFS(self, v, visited, component, d):
         visited.add(v)
-        component.append(v)
+        
+        if(d==1):
+            component.append(self.verticeMap[v])
+        else:
+            component.append(v)    
         for neighbor in self.adjList[v]:
             if neighbor not in visited:
-                self.DFS(neighbor, visited, component)
+                self.DFS(neighbor, visited, component,d)
 
-    def findLCC(self):
+    def findLCC(self, d=0):
         visited = set()
         largestComponent = []
-        for v in self.vertices:
-            if v not in visited:
-                component = []
-                self.DFS(v, visited, component)
-                if len(component) > len(largestComponent):
-                    largestComponent = component
+        # if(d==0):
+        for v in self.verticeSet:
+                if v not in visited:
+                    component = []
+                    self.DFS(v, visited, component, d)
+                    if len(component) > len(largestComponent):
+                        largestComponent = component    
+        # else:
+        #     for v in self.vertices:
+        #         if v not in visited:
+        #             component = []
+        #             self.DFS(v, visited, component)
+        #             if len(component) > len(largestComponent):
+        #                 largestComponent = component
         return largestComponent
     
     def readGraphFromFile(self, filename):
-        with open(filename, 'r') as file:
-            for line in file:
-                u, v = map(int, line.strip().split())
-                self.addEdge(u, v)
-    
-    def readGraphFromFilePos(self, filename):
         edges=[]
         with open(filename, 'r') as file:
             for line in file:
                 components = line.strip().split()
-                u = int(components[0])
-                x1, y1 = map(float, components[1:3])
-                v = int(components[3])
-                x2, y2 = map(float, components[4:])
-                # print("u=",u)
-                self.addEdge(u, v)
-                edges.append((int(u), x1, y1, int(v), x2, y2))
-        return edges
+                if(len(components)==2):
+                    u, v = map(int, components)
+                    self.addEdge(u, v)
+                    self.addVertex(u, v)
+                else:
+                    u = int(components[0])
+                    x1, y1 = map(float, components[1:3])
+                    v = int(components[3])
+                    x2, y2 = map(float, components[4:])
+                    # print("u=",u)
+                    self.addEdge(u, v)
+                    self.addVertex(u, v, x1, y1, x2, y2)
+                    edges.append((int(u), x1, y1, int(v), x2, y2))
+        return edges    
+        
     
     def visualize(self):
         
@@ -95,7 +131,7 @@ class Graph:
                 break
         return mid
     
-    def getlccdegrees(self, edges, lcc):
+    def getlccdegrees(self, lcc):
 
         mdegree = 0
         total_degree = 0
@@ -147,38 +183,96 @@ def generate():
     graph500.addEdges(optimalR500)
     graph500.saveGraphToFile("graph_n500.edges")
     graph500.saveGraphToMtxFile("graph_n500.mtx")
+    
+    with open("n_rValues", 'w') as outFile:   
+        outFile.write(f"{n300} {optimalR300}\n"
+                      f"{n400} {optimalR400}\n"
+                      f"{n500} {optimalR500}\n")
 
-def dfslsp():
-    g = Graph()
-    d = DFS()
-    a = Astar()
-    g.readGraphFromFile("graph_n300.mtx")
-    lcc = g.findLCC()
-    longestPathEstimate = d.searchLSP(lcc,g)
-    print("Estimated longest simple path length:", longestPathEstimate)
     
 def dfslsp():
     g = Graph()
     d = DFS()
-    a = Astar()
-    g.readGraphFromFile("graph_n300.mtx")
+    g.readGraphFromFile("graph_n300.edges")
     lcc = g.findLCC()
     longestPathEstimate = d.searchLSP(lcc,g)
     print("Estimated longest simple path length:", longestPathEstimate)
 
 def dijkstra():
-    print("You chose option 2")
+    g = Graph()
+    d = Dijkstra()
+    g.readGraphFromFile("graph_n300.edges")
+    lcc = g.findLCC(1)
+    longestPathEstimate = d.searchLSP(g, random.choice(lcc), lcc)
+    print("Estimated longest simple path length:", len(longestPathEstimate))
 
 def astar():
     g = Graph()
     a = Astar()
-    edges = g.readGraphFromFilePos("graph_n300.edges")
+    edges = g.readGraphFromFile("graph_n300.edges")
     lcc = g.findLCC()
-    longestPathEstimate = a.Get_Longest_Simple_Path(lcc,edges,g)
+    print()
+    longestPathEstimate = a.searchLSP(lcc,edges,g)
     print("Estimated longest simple path length:", longestPathEstimate)
     
 def our():
     print("You chose option 2")    
+    
+def all():
+    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges']
+    extracted_values = {}
+    with open("n_rValues", 'r') as file:
+            for line in file:
+                components = line.strip().split()
+                extracted_values[int(components[0])] = float(components[1])
+                    
+    for i, graph in enumerate(graphs):
+        g = Graph()
+        d = DFS()
+        di = Dijkstra()
+        a = Astar()
+        
+        edges = g.readGraphFromFile(graph)
+        
+        lcc = g.findLCC()
+        dilcc = g.findLCC(1)     
+        
+        mD, aD = g.getlccdegrees(lcc)
+        
+        dfslsp = d.searchLSP(lcc,g)
+        dilsp = di.searchLSP(g, random.choice(dilcc), dilcc)
+        alsp = a.searchLSP(lcc,edges,g)
+        print(extracted_values)
+        headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
+        data = [
+            ["DFS",len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), dfslsp],
+            ["Dijkstra",len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), len(dilsp)],
+            ["A*", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp]
+        ]
+        
+        # max_col_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
+        # total_width = sum(max_col_widths) + len(headers) * 3 + 1
+        # table = ""
+        # table += "+-" + "-".join(['-' * width for width in max_col_widths]) + "-+\n"
+        # table += "| " + " | ".join(header.ljust(width) for header, width in zip(headers, max_col_widths)) + " |\n"
+        # table += "+=" + "=+".join(['=' * width for width in max_col_widths]) + "=+\n"
+        # for row in data:
+        #     table += "| " + " | ".join(str(cell).ljust(width) for cell, width in zip(row, max_col_widths)) + " |\n"
+        # table += "+-" + "-".join(['-' * width for width in max_col_widths]) + "-+\n"
+        # print(table)
+        
+        max_col_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
+    
+        # Calculate the total width of the table
+        total_width = sum(max_col_widths) + len(headers) * 3 + 1
+        
+        # Print the table
+        print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
+        print("| " + " | ".join(header.ljust(width) for header, width in zip(headers, max_col_widths)) + " |")
+        print("=" + "=+".join(["=" * width for width in max_col_widths]) + "=+")
+        for row in data:
+            print("| " + " | ".join(str(cell).ljust(width) for cell, width in zip(row, max_col_widths)) + " |")
+        print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
     
 def main():
     
@@ -187,7 +281,8 @@ def main():
     2: dfslsp,
     3: dijkstra,
     4: astar,
-    5: our
+    5: our,
+    6: all
 }
     print("Welcome to Longest Simple Path Search!!")
     print("1. Generate Graphs with n=300, 400 and 500")
@@ -195,6 +290,7 @@ def main():
     print("3. Dijkstra Based LSP Search")
     print("4. A* Based LSP Search")
     print("5. Our Hueristic LSP Search")
+    print("6. Execute all Graphs")
     num = int(input("Enter your choice: "))
     selected_option = options.get(num)
     if selected_option:

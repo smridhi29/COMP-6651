@@ -14,7 +14,7 @@ class Astar:
         x2, y2 = pos2
         return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-    def Get_Longest_Simple_Path(self, lcc, edges, g):
+    def searchLSP(self, lcc, edges, g):
         n_samples = int(sqrt(len(lcc)))
         sources = random.sample(lcc, n_samples)
         targets = random.sample(lcc, n_samples)
