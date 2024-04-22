@@ -218,6 +218,35 @@ def astar():
 def our():
     print("You chose option 2")    
     
+
+def format_table(headers, data):
+    # Find the maximum width for each column including headers
+    column_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
+    for i, header in enumerate(headers):
+        column_widths[i] = max(column_widths[i], len(header))
+    
+    # Create a format string for the header and row data with the correct padding for each column
+    header_format_string = " | ".join("{:^" + str(width) + "}" for width in column_widths)
+    row_format_string = " | ".join("{:<" + str(width) + "}" for width in column_widths)
+    
+    # Create the header string
+    formatted_header = ("+ " + " + ".join("-" * width for width in column_widths) + " +\n"
+                        "| " + header_format_string.format(*headers) + " |\n"
+                        "+=" + "=+".join("=" * width for width in column_widths) + "=+")
+    
+    # Apply the row format string to each row in the data
+    formatted_rows = [row_format_string.format(*row) for row in data]
+    
+    # Join the rows into a single string with line breaks
+    formatted_rows = "\n".join("| " + row + " |" for row in formatted_rows)
+    
+    # Combine the header and rows with the appropriate top and bottom borders
+    formatted_table = (formatted_header + "\n" + formatted_rows +
+                       "\n+ " + " + ".join("-" * width for width in column_widths) + " +")
+    
+    return formatted_table
+
+
 def all():
     graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges']
     extracted_values = {}
@@ -250,6 +279,11 @@ def all():
             ["A*", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp]
         ]
         
+        formatted_table = format_table(headers, data)
+    
+        # Print the formatted table
+        print(formatted_table)
+
         # max_col_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
         # total_width = sum(max_col_widths) + len(headers) * 3 + 1
         # table = ""
@@ -267,12 +301,12 @@ def all():
         total_width = sum(max_col_widths) + len(headers) * 3 + 1
         
         # Print the table
-        print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
-        print("| " + " | ".join(header.ljust(width) for header, width in zip(headers, max_col_widths)) + " |")
-        print("=" + "=+".join(["=" * width for width in max_col_widths]) + "=+")
-        for row in data:
-            print("| " + " | ".join(str(cell).ljust(width) for cell, width in zip(row, max_col_widths)) + " |")
-        print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
+        # print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
+        # print("| " + " | ".join(header.ljust(width) for header, width in zip(headers, max_col_widths)) + " |")
+        # print("=" + "=+".join(["=" * width for width in max_col_widths]) + "=+")
+        # for row in data:
+        #     print("| " + " | ".join(str(cell).ljust(width) for cell, width in zip(row, max_col_widths)) + " |")
+        # print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
     
 def main():
     
