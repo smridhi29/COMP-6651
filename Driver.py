@@ -5,6 +5,7 @@ from AStarLSP import Astar
 from DFSLSP import DFS
 from DijkstraLSP import Dijkstra
 from generateGraph import GeometricGraph
+from OurHeuristicLSP import OurHeuristic
 import matplotlib.pyplot as plt
 
 class Vertex:
@@ -216,7 +217,12 @@ def astar():
     print("Estimated longest simple path length:", longestPathEstimate)
     
 def our():
-    print("You chose option 2")    
+    g = Graph()
+    h = OurHeuristic()  
+    g.readGraphFromFile("graph_n300.edges")
+    lcc = g.findLCC(1)
+    longestPathEstimate = h.searchLSP(lcc, g)  
+    print("Estimated longest simple path length:", longestPathEstimate)
     
 
 def format_table(headers, data):
@@ -260,40 +266,34 @@ def all():
         d = DFS()
         di = Dijkstra()
         a = Astar()
+        ou= OurHeuristic()
         
         edges = g.readGraphFromFile(graph)
         
         lcc = g.findLCC()
-        dilcc = g.findLCC(1)     
+        dilcc = g.findLCC(1)
+        oulcc=g.findLCC(1)     
         
         mD, aD = g.getlccdegrees(lcc)
         
         dfslsp = d.searchLSP(lcc,g)
         dilsp = di.searchLSP(g, random.choice(dilcc), dilcc)
         alsp = a.searchLSP(lcc,edges,g)
+        oulsp = ou.searchLSP(oulcc,g)
         print(extracted_values)
         headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
         data = [
-            ["DFS",len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), dfslsp],
-            ["Dijkstra",len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), len(dilsp)],
-            ["A*", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp]
-        ]
+    ["DFS", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), dfslsp],
+    ["Dijkstra", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), len(dilsp)],
+    ["A*", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp],
+    ["OurHeuristic", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), oulsp]
+]
+
         
         formatted_table = format_table(headers, data)
     
         # Print the formatted table
         print(formatted_table)
-
-        # max_col_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
-        # total_width = sum(max_col_widths) + len(headers) * 3 + 1
-        # table = ""
-        # table += "+-" + "-".join(['-' * width for width in max_col_widths]) + "-+\n"
-        # table += "| " + " | ".join(header.ljust(width) for header, width in zip(headers, max_col_widths)) + " |\n"
-        # table += "+=" + "=+".join(['=' * width for width in max_col_widths]) + "=+\n"
-        # for row in data:
-        #     table += "| " + " | ".join(str(cell).ljust(width) for cell, width in zip(row, max_col_widths)) + " |\n"
-        # table += "+-" + "-".join(['-' * width for width in max_col_widths]) + "-+\n"
-        # print(table)
         
         max_col_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
     
