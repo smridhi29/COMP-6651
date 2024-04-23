@@ -1,7 +1,7 @@
 import random
 from collections import defaultdict
 
-class OurHeuristic:
+class OwnHeuristic:
     def searchLSP(self, connected_comp, graph_obj):
         
         path_max = 0

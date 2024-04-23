@@ -41,7 +41,7 @@ class GeometricGraph:
         return math.sqrt((u.x - v.x) ** 2 + (u.y - v.y) ** 2)
 
     def saveGraphToFile(self, filename):
-        with open(filename, 'w') as outFile:
+        with open("graphs/"+filename, 'w') as outFile:
             n = len(self.vertices)
             for i in range(n):
                 for j in self.adjacencyList[i]:
@@ -50,7 +50,7 @@ class GeometricGraph:
                                       f"{j + 1} {self.vertices[j].x} {self.vertices[j].y}\n")
                         
     def saveGraphToMtxFile(self, filename):
-        with open(filename, 'w') as outFile:
+        with open("graphs/"+filename, 'w') as outFile:
             n = len(self.vertices)
             nnz = sum(len(adj) for adj in self.adjacencyList)
             for i in range(n):

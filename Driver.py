@@ -5,7 +5,7 @@ from AStarLSP import Astar
 from DFSLSP import DFS
 from DijkstraLSP import Dijkstra
 from generateGraph import GeometricGraph
-from OurHeuristicLSP import OurHeuristic
+from OwnHeuristicLSP import OwnHeuristic
 import matplotlib.pyplot as plt
 
 class Vertex:
@@ -72,7 +72,7 @@ class Graph:
     
     def readGraphFromFile(self, filename):
         edges=[]
-        with open(filename, 'r') as file:
+        with open("graphs/"+filename, 'r') as file:
             for line in file:
                 components = line.strip().split()
                 if(len(components)==2):
@@ -185,7 +185,7 @@ def generate():
     graph500.saveGraphToFile("graph_n500.edges")
     graph500.saveGraphToMtxFile("graph_n500.mtx")
     
-    with open("n_rValues", 'w') as outFile:   
+    with open("graphs/n_rValues", 'w') as outFile:   
         outFile.write(f"{n300} {optimalR300}\n"
                       f"{n400} {optimalR400}\n"
                       f"{n500} {optimalR500}\n")
@@ -216,9 +216,9 @@ def astar():
     longestPathEstimate = a.searchLSP(lcc,edges,g)
     print("Estimated longest simple path length:", longestPathEstimate)
     
-def our():
+def own():
     g = Graph()
-    h = OurHeuristic()  
+    h = OwnHeuristic()  
     g.readGraphFromFile("graph_n300.edges")
     lcc = g.findLCC(1)
     longestPathEstimate = h.searchLSP(lcc, g)  
@@ -256,7 +256,7 @@ def format_table(headers, data):
 def all():
     graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges']
     extracted_values = {}
-    with open("n_rValues", 'r') as file:
+    with open("graphs/n_rValues", 'r') as file:
             for line in file:
                 components = line.strip().split()
                 extracted_values[int(components[0])] = float(components[1])
@@ -266,30 +266,28 @@ def all():
         d = DFS()
         di = Dijkstra()
         a = Astar()
-        ou= OurHeuristic()
+        o= OwnHeuristic()
         
         edges = g.readGraphFromFile(graph)
         
         lcc = g.findLCC()
         dilcc = g.findLCC(1)
-        oulcc=g.findLCC(1)     
+        olcc=g.findLCC(1)     
         
         mD, aD = g.getlccdegrees(lcc)
         
         dfslsp = d.searchLSP(lcc,g)
         dilsp = di.searchLSP(g, random.choice(dilcc), dilcc)
         alsp = a.searchLSP(lcc,edges,g)
-        oulsp = ou.searchLSP(oulcc,g)
-        print(extracted_values)
+        ownlsp = o.searchLSP(olcc,g)
+        
         headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
         data = [
     ["DFS", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), dfslsp],
     ["Dijkstra", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), len(dilsp)],
     ["A*", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp],
-    ["OurHeuristic", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), oulsp]
-]
-
-        
+    ["Own Heuristic", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), ownlsp]
+    ]        
         formatted_table = format_table(headers, data)
     
         # Print the formatted table
@@ -315,7 +313,7 @@ def main():
     2: dfslsp,
     3: dijkstra,
     4: astar,
-    5: our,
+    5: own,
     6: all
 }
     print("Welcome to Longest Simple Path Search!!")
@@ -323,7 +321,7 @@ def main():
     print("2. DFS Based LSP Search")
     print("3. Dijkstra Based LSP Search")
     print("4. A* Based LSP Search")
-    print("5. Our Hueristic LSP Search")
+    print("5. Own Hueristic LSP Search")
     print("6. Execute all Graphs")
     num = int(input("Enter your choice: "))
     selected_option = options.get(num)
