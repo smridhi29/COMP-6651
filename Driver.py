@@ -226,6 +226,7 @@ def own():
     
 
 def format_table(headers, data):
+        
     # Find the maximum width for each column including headers
     column_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
     for i, header in enumerate(headers):
@@ -238,7 +239,7 @@ def format_table(headers, data):
     # Create the header string
     formatted_header = ("+ " + " + ".join("-" * width for width in column_widths) + " +\n"
                         "| " + header_format_string.format(*headers) + " |\n"
-                        "+=" + "=+".join("=" * width for width in column_widths) + "=+")
+                        "+ " + " + ".join("=" * width for width in column_widths) + " +")
     
     # Apply the row format string to each row in the data
     formatted_rows = [row_format_string.format(*row) for row in data]
@@ -254,7 +255,7 @@ def format_table(headers, data):
 
 
 def all():
-    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges']
+    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges', 'DSJC500-5.mtx', 'inf-euroroad.edges', 'inf-power.mtx']
     extracted_values = {}
     with open("graphs/n_rValues", 'r') as file:
             for line in file:
@@ -276,35 +277,34 @@ def all():
         
         mD, aD = g.getlccdegrees(lcc)
         
+        if(i<3):
+            r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
+        else:
+            r="-"    
+        
         dfslsp = d.searchLSP(lcc,g)
         dilsp = di.searchLSP(g, random.choice(dilcc), dilcc)
-        alsp = a.searchLSP(lcc,edges,g)
+        if(i<3):
+            alsp = a.searchLSP(lcc,edges,g)
+        else:
+            alsp = "N/A"
         ownlsp = o.searchLSP(olcc,g)
         
         headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
         data = [
-    ["DFS", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), dfslsp],
-    ["Dijkstra", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), len(dilsp)],
-    ["A*", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp],
-    ["Own Heuristic", len(g.verticeSet), "{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3])))), len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), ownlsp]
+    ["DFS", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), dfslsp],
+    ["Dijkstra", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), len(dilsp)],
+    ["A*", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp],
+    ["Own Heuristic", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), ownlsp]
     ]        
         formatted_table = format_table(headers, data)
     
+        print("For the graph: "+graph+" , below are the results for each Algorithm")
+        print()
         # Print the formatted table
         print(formatted_table)
+        print()
         
-        max_col_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
-    
-        # Calculate the total width of the table
-        total_width = sum(max_col_widths) + len(headers) * 3 + 1
-        
-        # Print the table
-        # print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
-        # print("| " + " | ".join(header.ljust(width) for header, width in zip(headers, max_col_widths)) + " |")
-        # print("=" + "=+".join(["=" * width for width in max_col_widths]) + "=+")
-        # for row in data:
-        #     print("| " + " | ".join(str(cell).ljust(width) for cell, width in zip(row, max_col_widths)) + " |")
-        # print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
     
 def main():
     options = {
