@@ -307,28 +307,41 @@ def all():
         # print("+" + "-".join(["-" * width for width in max_col_widths]) + "+")
     
 def main():
-    
     options = {
-    1: generate,
-    2: dfslsp,
-    3: dijkstra,
-    4: astar,
-    5: own,
-    6: all
-}
-    print("Welcome to Longest Simple Path Search!!")
-    print("1. Generate Graphs with n=300, 400 and 500")
-    print("2. DFS Based LSP Search")
-    print("3. Dijkstra Based LSP Search")
-    print("4. A* Based LSP Search")
-    print("5. Own Hueristic LSP Search")
-    print("6. Execute all Graphs")
-    num = int(input("Enter your choice: "))
-    selected_option = options.get(num)
-    if selected_option:
-        selected_option()
-    else:
-        print("Invalid choice")
+        1: generate,
+        2: dfslsp,
+        3: dijkstra,
+        4: astar,
+        5: own,
+        6: all
+    }
+
+    while True:
+        print("\nWelcome to Longest Simple Path Search!!")
+        print("1. Generate Graphs with n=300, 400 and 500")
+        print("2. DFS Based LSP Search")
+        print("3. Dijkstra Based LSP Search")
+        print("4. A* Based LSP Search")
+        print("5. Own Heuristic LSP Search")
+        print("6. Execute all Graphs")
+        print("7. Exit")
         
+        try:
+            num = int(input("Enter your choice: "))
+        except ValueError:
+            print("Please enter a valid number.")
+            continue
+        
+        if num == 7:
+            print("Exiting program.")
+            break
+        
+        selected_option = options.get(num)
+        if selected_option:
+            selected_option()
+        else:
+            print("Invalid choice")
+
 if __name__ == "__main__":
     main()
+    
