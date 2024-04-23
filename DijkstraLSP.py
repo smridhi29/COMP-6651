@@ -17,13 +17,13 @@ class Dijkstra:
             vlcc = 0
 
             while unvisited:
-                max_vertex = max(unvisited, key=lambda vertex: vertex.distance)
-                unvisited.remove(max_vertex)
+                farthest = max(unvisited, key=lambda vertex: vertex.distance)
+                unvisited.remove(farthest)
 
-                for neighbor in g.adjList[max_vertex.node]:
+                for neighbor in g.adjList[farthest.node]:
                     if nodeMap[neighbor] in unvisited:
-                        new_distance = max(nodeMap[neighbor].distance, max_vertex.distance + 1)
-                        self.relax(max_vertex, nodeMap[neighbor], new_distance)
+                        new_distance = max(nodeMap[neighbor].distance, farthest.distance + 1)
+                        self.relax(farthest, nodeMap[neighbor], new_distance)
 
             
             longest_path = []
@@ -34,7 +34,7 @@ class Dijkstra:
 
             return longest_path
 
-    def relax(self, max_vertex, neighbor, new_distance):
+    def relax(self, farthest, neighbor, new_distance):
             if new_distance > neighbor.distance:
                 neighbor.distance = new_distance
-                neighbor.parent = max_vertex
+                neighbor.parent = farthest
