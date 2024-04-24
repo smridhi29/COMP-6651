@@ -192,37 +192,151 @@ def generate():
 
     
 def dfslsp():
-    g = Graph()
-    d = DFS()
-    g.readGraphFromFile("graph_n300.edges")
-    lcc = g.findLCC()
-    longestPathEstimate = d.searchLSP(lcc,g)
-    print("Estimated longest simple path length:", longestPathEstimate)
+    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges', 'DSJC500-5.mtx', 'inf-euroroad.edges', 'inf-power.mtx']
+    extracted_values = {}
+    with open("graphs/n_rValues", 'r') as file:
+            for line in file:
+                components = line.strip().split()
+                extracted_values[int(components[0])] = float(components[1])
+                    
+    for i, graph in enumerate(graphs):
+        g = Graph()
+        d = DFS()
+        edges = g.readGraphFromFile(graph)
+        lcc = g.findLCC()
+        
+        mD, aD = g.getlccdegrees(lcc)
+        
+        if(i<3):
+            r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
+        else:
+            r="-"    
+        
+        dfslsp = d.searchLSP(lcc,g)
+        
+        headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
+        data = [
+    ["DFS", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), dfslsp]
+    ]        
+        formatted_table = format_table(headers, data)
+    
+        print("For the graph: "+graph+" , below are the results for DFS Algorithm")
+        print()
+        # Print the formatted table
+        print(formatted_table)
+        print()
 
 def dijkstra():
-    g = Graph()
-    d = Dijkstra()
-    g.readGraphFromFile("graph_n300.edges")
-    lcc = g.findLCC(1)
-    longestPathEstimate = d.searchLSP(g, random.choice(lcc), lcc)
-    print("Estimated longest simple path length:", len(longestPathEstimate))
+    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges', 'DSJC500-5.mtx', 'inf-euroroad.edges', 'inf-power.mtx']
+    extracted_values = {}
+    with open("graphs/n_rValues", 'r') as file:
+            for line in file:
+                components = line.strip().split()
+                extracted_values[int(components[0])] = float(components[1])
+                    
+    for i, graph in enumerate(graphs):
+        g = Graph()
+        di = Dijkstra()
+        edges = g.readGraphFromFile(graph)
+        lcc = g.findLCC()
+        dilcc = g.findLCC(1)
+        mD, aD = g.getlccdegrees(lcc)
+        
+        if(i<3):
+            r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
+        else:
+            r="-"    
+        
+        dilsp = di.searchLSP(g, random.choice(dilcc), dilcc)
+        
+        headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
+        data = [
+    ["Dijkstra", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), len(dilsp)]
+    ]        
+        formatted_table = format_table(headers, data)
+    
+        print("For the graph: "+graph+" , below are the results for Dijkstra Algorithm")
+        print()
+        # Print the formatted table
+        print(formatted_table)
+        print()
 
 def astar():
-    g = Graph()
-    a = Astar()
-    edges = g.readGraphFromFile("graph_n300.edges")
-    lcc = g.findLCC()
-    print()
-    longestPathEstimate = a.searchLSP(lcc,edges,g)
-    print("Estimated longest simple path length:", longestPathEstimate)
+    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges', 'DSJC500-5.mtx', 'inf-euroroad.edges', 'inf-power.mtx']
+    extracted_values = {}
+    with open("graphs/n_rValues", 'r') as file:
+            for line in file:
+                components = line.strip().split()
+                extracted_values[int(components[0])] = float(components[1])
+                    
+    for i, graph in enumerate(graphs):
+        if(i<3):
+            g = Graph()
+            a = Astar()
+            
+            edges = g.readGraphFromFile(graph)
+            
+            lcc = g.findLCC()
+            
+            mD, aD = g.getlccdegrees(lcc)
+            
+            if(i<3):
+                r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
+            else:
+                r="-"    
+                
+            if(i<3):
+                alsp = a.searchLSP(lcc,edges,g)
+            else:
+                alsp = "N/A"
+            
+            headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
+            data = [
+        ["A*", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), alsp]
+        ]        
+            formatted_table = format_table(headers, data)
+        
+            print("For the graph: "+graph+" , below are the results for each Algorithm")
+            print()
+            # Print the formatted table
+            print(formatted_table)
+            print()
     
 def own():
-    g = Graph()
-    h = OwnHeuristic()  
-    g.readGraphFromFile("graph_n300.edges")
-    lcc = g.findLCC(1)
-    longestPathEstimate = h.searchLSP(lcc, g)  
-    print("Estimated longest simple path length:", longestPathEstimate)
+    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges', 'DSJC500-5.mtx', 'inf-euroroad.edges', 'inf-power.mtx']
+    extracted_values = {}
+    with open("graphs/n_rValues", 'r') as file:
+            for line in file:
+                components = line.strip().split()
+                extracted_values[int(components[0])] = float(components[1])
+                    
+    for i, graph in enumerate(graphs):
+        g = Graph()
+        o= OwnHeuristic()
+        edges = g.readGraphFromFile(graph)
+        lcc = g.findLCC()
+        olcc=g.findLCC(1)     
+        
+        mD, aD = g.getlccdegrees(lcc)
+        
+        if(i<3):
+            r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
+        else:
+            r="-"    
+        
+        ownlsp = o.searchLSP(olcc,g)
+        
+        headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
+        data = [
+    ["Own Heuristic", len(g.verticeSet), r, len(lcc), "{:.2f}".format(mD), "{:.2f}".format(aD), ownlsp]
+    ]        
+        formatted_table = format_table(headers, data)
+    
+        print("For the graph: "+graph+" , below are the results for our Own Algorithm")
+        print()
+        # Print the formatted table
+        print(formatted_table)
+        print()
     
 
 def format_table(headers, data):
