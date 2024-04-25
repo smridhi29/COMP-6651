@@ -1,6 +1,7 @@
 import random
 import math
 from collections import defaultdict
+# Import pathfinding algorithms
 from AStarLSP import Astar
 from DFSLSP import DFS
 from DijkstraLSP import Dijkstra
@@ -9,73 +10,72 @@ from OwnHeuristicLSP import OwnHeuristic
 import matplotlib.pyplot as plt
 
 class Vertex:
-    def __init__(self, x, y,node):
+    # Initialize a graph vertex with coordinates and a node identifier
+    def __init__(self, x, y, node):
         self.x = x
         self.y = y
         self.node = node
-        self.distance = float('-inf')
-        self.parent = None
-        
+        self.distance = float('-inf')  # Used for distance calculations in pathfinding
+        self.parent = None  # Pointer to parent vertex in a path
+
 class Graph:
+    # Initialize an empty graph with adjacency list and set of vertices
     def __init__(self):
         self.adjList = defaultdict(list)
         self.verticeSet = set()
         self.vertices = []
         self.verticeMap = {}
 
+    # Add an edge between two vertices u and v in the graph
     def addEdge(self, u, v):
         self.adjList[u].append(v)
         self.adjList[v].append(u)
         
+    # Add vertex with optional coordinates to the graph
     def addVertex(self, u, v, x1=0, y1=0, x2=0, y2=0):
         ver1 = Vertex(x1, y1, u)
         ver2 = Vertex(x2, y2, v)
-        if(u not in self.verticeSet):
+        if u not in self.verticeSet:
             self.vertices.append(ver1)
             self.verticeMap[u] = ver1
         
-        if(v not in self.verticeSet):
+        if v not in self.verticeSet:
             self.vertices.append(ver2)
             self.verticeMap[v] = ver2
         
         self.verticeSet.update([u, v])
 
+    # Recursive DFS to find components in the graph
     def DFS(self, v, visited, component, d):
         visited.add(v)
         
-        if(d==1):
+        if d == 1:
             component.append(self.verticeMap[v])
         else:
             component.append(v)    
         for neighbor in self.adjList[v]:
             if neighbor not in visited:
-                self.DFS(neighbor, visited, component,d)
+                self.DFS(neighbor, visited, component, d)
 
+    # Find the largest connected component in the graph
     def findLCC(self, d=0):
         visited = set()
         largestComponent = []
-        # if(d==0):
         for v in self.verticeSet:
-                if v not in visited:
-                    component = []
-                    self.DFS(v, visited, component, d)
-                    if len(component) > len(largestComponent):
-                        largestComponent = component    
-        # else:
-        #     for v in self.vertices:
-        #         if v not in visited:
-        #             component = []
-        #             self.DFS(v, visited, component)
-        #             if len(component) > len(largestComponent):
-        #                 largestComponent = component
+            if v not in visited:
+                component = []
+                self.DFS(v, visited, component, d)
+                if len(component) > len(largestComponent):
+                    largestComponent = component    
         return largestComponent
     
+    # Read graph from file to create edges and vertices
     def readGraphFromFile(self, filename):
-        edges=[]
+        edges = []
         with open("graphs/"+filename, 'r') as file:
             for line in file:
                 components = line.strip().split()
-                if(len(components)==2):
+                if len(components) == 2:
                     u, v = map(int, components)
                     self.addEdge(u, v)
                     self.addVertex(u, v)
@@ -84,38 +84,33 @@ class Graph:
                     x1, y1 = map(float, components[1:3])
                     v = int(components[3])
                     x2, y2 = map(float, components[4:])
-                    # print("u=",u)
                     self.addEdge(u, v)
                     self.addVertex(u, v, x1, y1, x2, y2)
                     edges.append((int(u), x1, y1, int(v), x2, y2))
         return edges    
-        
     
+    # Visualize the graph using matplotlib
     def visualize(self):
-        
-        plt.figure(figsize=(8, 6)) 
-
-       
-        nodes = list(self.vertices)  
-        x_coords = [v[0] for v in nodes] 
-        y_coords = [v[1] for v in nodes]  
+        plt.figure(figsize=(8, 6))
+        nodes = list(self.vertices)
+        x_coords = [v[0] for v in nodes]
+        y_coords = [v[1] for v in nodes]
 
         # Draw edges
         for vertex, neighbors in self.adjList.items():
-            x1, y1 = vertex[0], vertex[1]  
+            x1, y1 = vertex[0], vertex[1]
             for neighbor in neighbors:
-                x2, y2 = neighbor[0], neighbor[1] 
-                plt.plot([x1, x2], [y1, y2], 'b-o', alpha=0.7) 
+                x2, y2 = neighbor[0], neighbor[1]
+                plt.plot([x1, x2], [y1, y2], 'b-o', alpha=0.7)
 
-        
-        plt.scatter(x_coords, y_coords, color='red', s=50, alpha=0.7) 
-
+        plt.scatter(x_coords, y_coords, color='red', s=50, alpha=0.7)
         plt.title("Graph Visualization")
         plt.xlabel("X-axis")
         plt.ylabel("Y-axis")
-        plt.axis('off')  
+        plt.axis('off')
         plt.show()
     
+    # Find optimal radius for connectivity using binary search
     def findOptimalR(self, n, minFraction, maxFraction):
         low = 0
         high = math.sqrt(2)
@@ -132,13 +127,12 @@ class Graph:
                 break
         return mid
     
+    # Calculate maximum and average degrees of vertices in the largest connected component
     def getlccdegrees(self, lcc):
-
         mdegree = 0
         total_degree = 0
         node_count = 0
 
-        # Perform BFS starting from the LCC node
         for node in lcc:
             visited = set()
             queue = [node]
@@ -155,6 +149,8 @@ class Graph:
         adegree = total_degree / node_count if node_count != 0 else 0
 
         return mdegree, adegree    
+
+
 
 def generate():
     g= Graph()
