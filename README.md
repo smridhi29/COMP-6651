@@ -29,6 +29,6 @@ python3 Driver.py
 5. Upon execution, a menu will be presented. Follow the on-screen prompts to choose the desired operation.
 
 ### Comprehensive Analysis
-To perform a comprehensive analysis that includes combined results of all algorithms across all specified graph files, select option 6 from the menu.
+To perform a comprehensive analysis that includes combined results of all algorithms across all specified graph files, select option `6` from the menu.
 
 This setup facilitates a systematic and detailed examination of algorithmic performance across a variety of graph structures.

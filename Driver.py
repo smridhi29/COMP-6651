@@ -91,23 +91,29 @@ class Graph:
     
     # Visualize the graph using matplotlib
     def visualize(self):
-        plt.figure(figsize=(8, 6))
-        nodes = list(self.vertices)
-        x_coords = [v[0] for v in nodes]
-        y_coords = [v[1] for v in nodes]
-
-        # Draw edges
+        
+        plt.figure(figsize=(8, 6)) 
+        
+        nodes = list(self.vertices)  
+        x_coords = [v.x for v in nodes] 
+        y_coords = [v.y for v in nodes]  
         for vertex, neighbors in self.adjList.items():
-            x1, y1 = vertex[0], vertex[1]
+            x1 = self.verticeMap[vertex].x
+            y1 = self.verticeMap[vertex].y
             for neighbor in neighbors:
-                x2, y2 = neighbor[0], neighbor[1]
-                plt.plot([x1, x2], [y1, y2], 'b-o', alpha=0.7)
+                x2 = self.verticeMap[neighbor].x
+                y2 = self.verticeMap[neighbor].y
+                plt.plot([x1, x2], [y1, y2], 'b-o', alpha=0.7) 
 
-        plt.scatter(x_coords, y_coords, color='red', s=50, alpha=0.7)
+        
+        plt.scatter(x_coords, y_coords, color='red', s=50, alpha=0.7) 
+        for vertex in nodes:
+            plt.annotate(vertex.node, (vertex.x,vertex.y), textcoords="offset points", xytext=(0, 10), ha='center')
+        
         plt.title("Graph Visualization")
         plt.xlabel("X-axis")
         plt.ylabel("Y-axis")
-        plt.axis('off')
+        plt.axis('off')  
         plt.show()
     
     # Find optimal radius for connectivity using binary search
@@ -198,6 +204,9 @@ def dfslsp():
     for i, graph in enumerate(graphs):
         g = Graph()
         d = DFS()
+        print("For the graph: "+graph+" , below are the results for DFS Algorithm")   
+        if(i>=3):
+            print("\033[3mAs the graph is large, results are generating, please wait....\033[0m")  
         edges = g.readGraphFromFile(graph)
         lcc = g.findLCC()
         
@@ -216,7 +225,7 @@ def dfslsp():
     ]        
         formatted_table = format_table(headers, data)
     
-        print("For the graph: "+graph+" , below are the results for DFS Algorithm")
+        
         print()
         # Print the formatted table
         print(formatted_table)
@@ -233,6 +242,9 @@ def dijkstra():
     for i, graph in enumerate(graphs):
         g = Graph()
         di = Dijkstra()
+        print("For the graph: "+graph+" , below are the results for Dijkstra Algorithm")    
+        if(i>=3):
+            print("\033[3mAs the graph is large, results are generating, please wait....\033[0m")  
         edges = g.readGraphFromFile(graph)
         lcc = g.findLCC()
         dilcc = g.findLCC(1)
@@ -242,7 +254,7 @@ def dijkstra():
             r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
         else:
             r="-"    
-        
+            
         dilsp = di.searchLSP(g, random.choice(dilcc), dilcc)
         
         headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
@@ -251,14 +263,13 @@ def dijkstra():
     ]        
         formatted_table = format_table(headers, data)
     
-        print("For the graph: "+graph+" , below are the results for Dijkstra Algorithm")
         print()
         # Print the formatted table
         print(formatted_table)
         print()
 
 def astar():
-    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges', 'DSJC500-5.mtx', 'inf-euroroad.edges', 'inf-power.mtx']
+    graphs = ['graph_n300.edges', 'graph_n400.edges', 'graph_n500.edges']
     extracted_values = {}
     with open("graphs/n_rValues", 'r') as file:
             for line in file:
@@ -309,6 +320,9 @@ def own():
     for i, graph in enumerate(graphs):
         g = Graph()
         o= OwnHeuristic()
+        print("For the graph: "+graph+" , below are the results for our Own Algorithm")    
+        if(i>=3):
+            print("\033[3mAs the graph is large, results are generating, please wait....\033[0m")    
         edges = g.readGraphFromFile(graph)
         lcc = g.findLCC()
         olcc=g.findLCC(1)     
@@ -318,8 +332,8 @@ def own():
         if(i<3):
             r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
         else:
-            r="-"    
-        
+            r="-"
+                    
         ownlsp = o.searchLSP(olcc,g)
         
         headers = ["Algorithm", "n", "r", "LCC Length", "Maximum Degree", "Average Degree", "LSP"]
@@ -328,7 +342,6 @@ def own():
     ]        
         formatted_table = format_table(headers, data)
     
-        print("For the graph: "+graph+" , below are the results for our Own Algorithm")
         print()
         # Print the formatted table
         print(formatted_table)
@@ -337,27 +350,21 @@ def own():
 
 def format_table(headers, data):
         
-    # Find the maximum width for each column including headers
     column_widths = [max(len(str(row[i])) for row in data) for i in range(len(headers))]
     for i, header in enumerate(headers):
         column_widths[i] = max(column_widths[i], len(header))
     
-    # Create a format string for the header and row data with the correct padding for each column
     header_format_string = " | ".join("{:^" + str(width) + "}" for width in column_widths)
     row_format_string = " | ".join("{:<" + str(width) + "}" for width in column_widths)
     
-    # Create the header string
     formatted_header = ("+ " + " + ".join("-" * width for width in column_widths) + " +\n"
                         "| " + header_format_string.format(*headers) + " |\n"
                         "+ " + " + ".join("=" * width for width in column_widths) + " +")
     
-    # Apply the row format string to each row in the data
     formatted_rows = [row_format_string.format(*row) for row in data]
     
-    # Join the rows into a single string with line breaks
     formatted_rows = "\n".join("| " + row + " |" for row in formatted_rows)
     
-    # Combine the header and rows with the appropriate top and bottom borders
     formatted_table = (formatted_header + "\n" + formatted_rows +
                        "\n+ " + " + ".join("-" * width for width in column_widths) + " +")
     
@@ -378,7 +385,9 @@ def all():
         di = Dijkstra()
         a = Astar()
         o= OwnHeuristic()
-        
+        print("For the graph: "+graph+" , below are the results for each Algorithm")
+        if(i>=3):
+            print("\033[3mAs the graph is large, results are generating, please wait....\033[0m")  
         edges = g.readGraphFromFile(graph)
         
         lcc = g.findLCC()
@@ -391,7 +400,7 @@ def all():
             r="{:.3f}".format(float(extracted_values.get(int(graph[graph.index("graph_n") + len("graph_n"):][:3]))))
         else:
             r="-"    
-        
+            
         dfslsp = d.searchLSP(lcc,g)
         dilsp = di.searchLSP(g, random.choice(dilcc), dilcc)
         if(i<3):
@@ -409,7 +418,7 @@ def all():
     ]        
         formatted_table = format_table(headers, data)
     
-        print("For the graph: "+graph+" , below are the results for each Algorithm")
+        
         print()
         # Print the formatted table
         print(formatted_table)
@@ -435,7 +444,7 @@ def main():
         print("5. Own Heuristic LSP Search")
         print("6. Execute all Graphs")
         print("7. Exit")
-        print("\033[3mPlease note that generating results for online graphs may require 1-2 minutes.\033[0m")
+        print("\033[3mPlease note that generating results for online graphs requires some time as the graphs are large in nature.\033[0m")
 
         
         try:

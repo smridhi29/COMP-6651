@@ -25,7 +25,7 @@ class Astar:
             for target in targets:
                 pq = []  
                 inDist = {source: 0}  
-                fiDist = {source: self.euclideanDist((edges[source][1], edges[source][2]), (edges[target][4], edges[target][5]))}  
+                fiDist = {source: self.euclideanDist((edges[source][1], edges[source][2]), (edges[source][4], edges[source][5]))}  
                 heappush(pq,(-fiDist[source], source))
 
                 visited = set() 
