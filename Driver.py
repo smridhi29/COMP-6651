@@ -439,9 +439,11 @@ def main():
         print("5. Own Heuristic LSP Search")
         print("6. Execute all Graphs")
         print("7. Exit")
+        print("\033[3mPlease note that generating results for online graphs may require 1-2 minutes.\033[0m")
+
         
         try:
-            num = int(input("Enter your choice: "))
+            num = int(input("Enter your choice (Choose option 6 for complete analysis): "))
         except ValueError:
             print("Please enter a valid number.")
             continue
